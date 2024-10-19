@@ -1,5 +1,8 @@
 package vn.hoidanit.jobhunter.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import vn.hoidanit.jobhunter.domain.User;
@@ -17,18 +20,25 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-    public User getUser(@PathVariable("id") Long id){
-        return this.userService.handleGetUser(id);
+    public ResponseEntity<User> getUser(@PathVariable("id") Long id){
+        User user = this.userService.handleGetUser(id);
+        if(user!=null){
+         return ResponseEntity.ok(user);
+        }
+        else{
+            return ResponseEntity.noContent().build();
+        }
     }
     @PostMapping("/user")
-    public User createUser(@RequestBody User userRequest) {
-
-        return userService.handleUserCreate(userRequest);
+    public ResponseEntity<User> createUser(@RequestBody User userRequest) {
+        User user = userService.handleUserCreate(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
 
     @GetMapping("/user")
-    public List<User> getAllUsers(){
-        return this.userService.handleGetAllUsers();
+    public ResponseEntity<List<User>> getAllUsers(){
+        List<User> users = this.userService.handleGetAllUsers();
+        return ResponseEntity.ok(users);
     }
 
     @PutMapping("/user")
@@ -39,7 +49,8 @@ public class UserController {
 
 
     @DeleteMapping("/user/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
-        return this.userService.handleUserDelete(id);
+    public ResponseEntity<String> deleteUser(@PathVariable("id") Long id) {
+        String result = this.userService.handleUserDelete(id);
+        return ResponseEntity.ok(result);
     }
 }
