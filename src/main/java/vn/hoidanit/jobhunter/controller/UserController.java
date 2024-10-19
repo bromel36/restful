@@ -5,7 +5,11 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.service.UserService;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
@@ -17,14 +21,14 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/user/create")
-    public String createUser() {
+    @PostMapping("/user")
+    public User createUser(@RequestBody User userRequest) {
 
-        User user = new User();
-        user.setEmail("@alo");
-        user.setName("bromel");
-        user.setPassword("123456");
+        return userService.handleUserCreate(userRequest);
+    }
 
-        return userService.handleUser(user);
+    @DeleteMapping("/user/{id}")
+    public String deleteUser(@PathVariable("id") Long id) {
+        return this.userService.handleUserDelete(id);
     }
 }
