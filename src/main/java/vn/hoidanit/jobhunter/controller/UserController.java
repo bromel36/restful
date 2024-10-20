@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.service.UserService;
+import vn.hoidanit.jobhunter.service.exception.IdInvalidException;
 
 import java.util.List;
 
@@ -20,15 +21,26 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<User> getUser(@PathVariable("id") Long id){
+//    public ResponseEntity<User> getUser(@PathVariable("id") Long id){
+//        User user = this.userService.handleGetUser(id);
+//        if(user!=null){
+//         return ResponseEntity.ok(user);
+//        }
+//        else{
+//            return ResponseEntity.noContent().build();
+//        }
+//    }
+    public User getUser(@PathVariable("id") Long id){
         User user = this.userService.handleGetUser(id);
         if(user!=null){
-         return ResponseEntity.ok(user);
+            return user;
         }
         else{
-            return ResponseEntity.noContent().build();
+            return null;
         }
     }
+
+
     @PostMapping("/user")
     public ResponseEntity<User> createUser(@RequestBody User userRequest) {
         User user = userService.handleUserCreate(userRequest);
@@ -48,8 +60,13 @@ public class UserController {
 
 
 
+
     @DeleteMapping("/user/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteUser(@PathVariable("id") Long id) throws IdInvalidException {
+        if(id >10){
+            throw new IdInvalidException("Id khong the lon hon 10");
+        }
+
         String result = this.userService.handleUserDelete(id);
         return ResponseEntity.ok(result);
     }

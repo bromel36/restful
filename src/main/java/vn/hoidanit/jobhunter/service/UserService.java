@@ -23,7 +23,7 @@ public class UserService {
 
     public String handleUserDelete(Long id) {
         this.userRepository.deleteById(id);
-        return "created";
+        return "deleted ";
     }
 
     public User handleGetUser(Long id) {
