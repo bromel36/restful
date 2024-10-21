@@ -21,24 +21,16 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-//    public ResponseEntity<User> getUser(@PathVariable("id") Long id){
-//        User user = this.userService.handleGetUser(id);
-//        if(user!=null){
-//         return ResponseEntity.ok(user);
-//        }
-//        else{
-//            return ResponseEntity.noContent().build();
-//        }
-//    }
-    public User getUser(@PathVariable("id") Long id){
+    public ResponseEntity<User> getUser(@PathVariable("id") Long id){
         User user = this.userService.handleGetUser(id);
         if(user!=null){
-            return user;
+         return ResponseEntity.ok(user);
         }
         else{
-            return null;
+            return ResponseEntity.noContent().build();
         }
     }
+
 
 
     @PostMapping("/user")
