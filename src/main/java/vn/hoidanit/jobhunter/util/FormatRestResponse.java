@@ -31,6 +31,12 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         int status = httpResponse.getStatus();
         RestResponse<Object> res = new RestResponse<>();
         res.setStatusCode(status);
+
+//        handle case controller return a string
+//        if(body instanceof String){
+//            return body;
+//        }
+
         if(status < 400){
             //success case
             res.setData(body);
