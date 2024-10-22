@@ -11,16 +11,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 
 @Component("userDetailsService")
-public class UserServiceCustom implements UserDetailsService {
+public class UserDetailsCustom implements UserDetailsService {
     private final UserService userService;
-    public UserServiceCustom(UserService userService) {
+    public UserDetailsCustom(UserService userService) {
         this.userService = userService;
     }
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         vn.hoidanit.jobhunter.domain.User myUser = this.userService.handleGetUserByUsername(username);
-
+        if(myUser == null){
+            throw new UsernameNotFoundException("username/password incorrect");
+        }
 
         return new User(
                 myUser.getEmail(),
