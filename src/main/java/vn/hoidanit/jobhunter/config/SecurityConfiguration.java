@@ -13,16 +13,23 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
+    /**
+     * .authenticate() mean that all request need to authenticate
+     *
+     */
+
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(c -> c.disable())
                 .authorizeHttpRequests(
                         authz -> authz.requestMatchers("/").permitAll()
 
-
-                                .anyRequest().authenticated()
-
+//                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
+                .formLogin(form -> form.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
@@ -32,7 +39,6 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
 
 }

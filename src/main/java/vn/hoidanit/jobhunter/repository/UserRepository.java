@@ -8,5 +8,5 @@ import vn.hoidanit.jobhunter.domain.User;
  * UserRepository
  */
 public interface UserRepository extends JpaRepository<User, Long> {
-
+    User findByEmail(String email);
 }
