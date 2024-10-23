@@ -15,6 +15,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
@@ -35,7 +37,7 @@ public class SecurityConfiguration {
     private String jwtKey;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http
                 .csrf(c -> c.disable())
                 .authorizeHttpRequests(
@@ -44,11 +46,12 @@ public class SecurityConfiguration {
                                 .anyRequest().authenticated()
 //                                .anyRequest().permitAll()
                 )
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
-                .exceptionHandling(
-                        exceptions -> exceptions
-                                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //401
-                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) //403
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
+                                            .authenticationEntryPoint(customAuthenticationEntryPoint))
+//                .exceptionHandling(
+//                        exceptions -> exceptions
+//                                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //401
+//                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) //403
 
                 .formLogin(form -> form.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -68,6 +71,17 @@ public class SecurityConfiguration {
                 throw e;
             }
         };
+    }
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new
+                JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("hoidanit");
+        JwtAuthenticationConverter jwtAuthenticationConverter = new
+                JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 
     @Bean
