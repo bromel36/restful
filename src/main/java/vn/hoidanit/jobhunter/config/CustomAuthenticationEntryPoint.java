@@ -33,6 +33,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType("application/json; charset=utf-8");
         RestResponse<Object> restResponse = new RestResponse<>();
 
+
         String errorMessage = Optional.ofNullable(authException.getCause())
                         .map(Throwable::getMessage)
                         .orElse(authException.getMessage());
