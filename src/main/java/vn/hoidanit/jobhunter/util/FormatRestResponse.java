@@ -33,9 +33,9 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         res.setStatusCode(status);
 
 //        handle case controller return a string
-//        if(body instanceof String){
-//            return body;
-//        }
+        if(body instanceof String){
+            return body;
+        }
 
         if(status < 400){
             //success case
