@@ -14,21 +14,10 @@ import java.time.Instant;
 @Table(name = "users")
 @Getter
 @Setter
-public class User {
+public class User extends Base{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     private String name;
     private String email;
     private String password;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
-
-    private String createdBy;
-
-    private String updatedBy;
 
 }

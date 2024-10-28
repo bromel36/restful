@@ -4,6 +4,7 @@ package vn.hoidanit.jobhunter.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 
@@ -11,11 +12,7 @@ import java.time.Instant;
 @Table(name = "companies")
 @Getter
 @Setter
-public class Company {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Company extends Base {
 
     private String name;
 
@@ -26,17 +23,4 @@ public class Company {
 
     private String logo;
 
-    private Instant createdAt;
-
-    private Instant updatedAt;
-
-    private String createdBy;
-
-    private String updatedBy;
-
-    @PrePersist
-    public void handleInsert(){
-        createdBy = "bromel";
-        createdAt = Instant.now();
-    }
 }
