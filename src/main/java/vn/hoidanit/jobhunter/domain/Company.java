@@ -33,4 +33,10 @@ public class Company {
     private String createdBy;
 
     private String updatedBy;
+
+    @PrePersist
+    public void handleInsert(){
+        createdBy = "bromel";
+        createdAt = Instant.now();
+    }
 }
