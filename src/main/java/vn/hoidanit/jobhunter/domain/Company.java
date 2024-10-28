@@ -1,9 +1,11 @@
 package vn.hoidanit.jobhunter.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import vn.hoidanit.jobhunter.util.SecurityUtil;
 
 import java.time.Instant;
 
@@ -26,8 +28,10 @@ public class Company {
 
     private String logo;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
     private Instant createdAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
     private Instant updatedAt;
 
     private String createdBy;
@@ -35,8 +39,18 @@ public class Company {
     private String updatedBy;
 
     @PrePersist
-    public void handleInsert(){
-        createdBy = "bromel";
+    public void handleBeforeInsert(){
+        createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ?
+                    SecurityUtil.getCurrentUserLogin().get()
+                    : "";
         createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void handleBeforeUpdate(){
+        updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ?
+                SecurityUtil.getCurrentUserLogin().get()
+                : "";
+        updatedAt = Instant.now();
     }
 }

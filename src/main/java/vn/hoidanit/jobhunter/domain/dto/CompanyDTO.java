@@ -9,6 +9,8 @@ import lombok.Setter;
 @Setter
 public class CompanyDTO {
 
+    private Long id;
+
     @NotBlank(message = "Company name is required")
     private String name;
 
