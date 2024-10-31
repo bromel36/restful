@@ -1,9 +1,11 @@
 package vn.hoidanit.jobhunter.controller;
 
 
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +26,10 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
+
     @GetMapping("/companies")
     public ResponseEntity<PaginationResponseDTO> getAll(
+            @Filter Specification<Company> spec,
             @RequestParam(value = "current") Optional<String> currentOptional,
             @RequestParam(value = "pageSize") Optional<String> currentPageSize
 
@@ -38,7 +42,7 @@ public class CompanyController {
 
         Pageable pageable = PageRequest.of(current - 1, pageSize);
 
-        PaginationResponseDTO paginationResponseDTO = this.companyService.handleGetAllCompanies(pageable);
+        PaginationResponseDTO paginationResponseDTO = this.companyService.handleGetAllCompanies(spec);
 
 
 
