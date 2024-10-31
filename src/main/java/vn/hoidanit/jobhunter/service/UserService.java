@@ -1,10 +1,15 @@
 package vn.hoidanit.jobhunter.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.User;
+import vn.hoidanit.jobhunter.domain.dto.Meta;
+import vn.hoidanit.jobhunter.domain.dto.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.repository.UserRepository;
 
 import java.util.List;
@@ -34,8 +39,24 @@ public class UserService {
         return this.userRepository.findById(id).orElse(null);
     }
 
-    public List<User> handleGetAllUsers() {
-        return this.userRepository.findAll();
+    public PaginationResponseDTO handleGetAllUsers(Specification<User> spec, Pageable pageable) {
+
+        Page<User> users = userRepository.findAll(spec, pageable);
+
+        Meta meta = new Meta();
+        PaginationResponseDTO paginationResponseDTO = new PaginationResponseDTO();
+
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPage(pageable.getPageNumber());
+
+        meta.setTotal(users.getTotalElements());
+        meta.setPages(users.getTotalPages());
+        meta.setTotalOfCurrentPage(users.getNumberOfElements());
+
+        paginationResponseDTO.setMeta(meta);
+        paginationResponseDTO.setResult(users.getContent());
+
+        return paginationResponseDTO;
     }
 
     public User handleUpdateUser(User userRequest) {

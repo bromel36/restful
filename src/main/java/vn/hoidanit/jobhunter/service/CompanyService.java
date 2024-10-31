@@ -41,11 +41,13 @@ public class CompanyService {
         PaginationResponseDTO paginationResponseDTO = new PaginationResponseDTO();
         Meta meta = new Meta();
 
-        meta.setPage(companyPage.getNumber() + 1);
+        meta.setPage(pageable.getPageNumber() + 1);
+        meta.setPageSize(pageable.getPageSize());
+
         meta.setPages(companyPage.getTotalPages());
         meta.setTotal(companyPage.getTotalElements());
-        meta.setPageSize(companyPage.getSize());
         meta.setTotalOfCurrentPage(companyPage.getNumberOfElements());
+
         paginationResponseDTO.setResult(companyPage.getContent());
         paginationResponseDTO.setMeta(meta);
 

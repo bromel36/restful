@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.hoidanit.jobhunter.domain.dto.LoginDTO;
 import vn.hoidanit.jobhunter.domain.dto.ResponseLoginDTO;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
+import vn.hoidanit.jobhunter.util.annotation.ApiMessage;
 
 @RestController
 public class AuthController {
@@ -25,6 +26,7 @@ public class AuthController {
         this.securityUtil = securityUtil;
     }
     @PostMapping("/login")
+    @ApiMessage("success login")
     public ResponseEntity<ResponseLoginDTO> login(@Valid @RequestBody LoginDTO loginDTO){
 
 

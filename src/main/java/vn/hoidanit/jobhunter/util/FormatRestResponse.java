@@ -11,6 +11,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import vn.hoidanit.jobhunter.domain.RestResponse;
+import vn.hoidanit.jobhunter.util.annotation.ApiMessage;
 
 /*
 *ben controller, khi tra ve thi phai tra ve mot object hoac la mot ResponseEntity gi do chu khong tra ve String hay Long ...
@@ -40,7 +41,11 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         if(status < 400){
             //success case
             res.setData(body);
-            res.setMessage("Success");
+
+            ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
+
+            res.setMessage(apiMessage!= null ? apiMessage.value() : "CALL API SUCCESS");
+
             return res;
         }
         else{
