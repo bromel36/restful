@@ -10,5 +10,7 @@ public class Meta {
     private int page;
     private int pageSize;
     private long total;
+    private int totalOfCurrentPage;
     private int pages;
+
 }

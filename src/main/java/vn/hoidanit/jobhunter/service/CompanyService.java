@@ -35,18 +35,18 @@ public class CompanyService {
         return companyRepository.save(company) ;
     }
 
-    public PaginationResponseDTO handleGetAllCompanies(Specification<Company> specification) {
-        List<Company> companyPage = companyRepository.findAll(specification);
+    public PaginationResponseDTO handleGetAllCompanies(Specification<Company> specification, Pageable pageable) {
+        Page<Company> companyPage = companyRepository.findAll(specification, pageable);
 
         PaginationResponseDTO paginationResponseDTO = new PaginationResponseDTO();
         Meta meta = new Meta();
 
-//        meta.setPage(companyPage.getNumber() + 1);
-//        meta.setPages(companyPage.getTotalPages());
-//        meta.setTotal(companyPage.getTotalElements());
-//        meta.setPageSize(companyPage.getSize());
-
-        paginationResponseDTO.setResult(companyPage);
+        meta.setPage(companyPage.getNumber() + 1);
+        meta.setPages(companyPage.getTotalPages());
+        meta.setTotal(companyPage.getTotalElements());
+        meta.setPageSize(companyPage.getSize());
+        meta.setTotalOfCurrentPage(companyPage.getNumberOfElements());
+        paginationResponseDTO.setResult(companyPage.getContent());
         paginationResponseDTO.setMeta(meta);
 
         return paginationResponseDTO;

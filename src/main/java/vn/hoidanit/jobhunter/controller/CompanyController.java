@@ -30,21 +30,10 @@ public class CompanyController {
     @GetMapping("/companies")
     public ResponseEntity<PaginationResponseDTO> getAll(
             @Filter Specification<Company> spec,
-            @RequestParam(value = "current") Optional<String> currentOptional,
-            @RequestParam(value = "pageSize") Optional<String> currentPageSize
+            Pageable pageable
 
     ){
-        String sCurrent = currentOptional.orElse("1"); // if current not present, default 1
-        String sPageSize = currentPageSize.orElse("10"); // same
-
-        int current = Integer.parseInt(sCurrent);
-        int pageSize = Integer.parseInt(sPageSize);
-
-        Pageable pageable = PageRequest.of(current - 1, pageSize);
-
-        PaginationResponseDTO paginationResponseDTO = this.companyService.handleGetAllCompanies(spec);
-
-
+        PaginationResponseDTO paginationResponseDTO = this.companyService.handleGetAllCompanies(spec, pageable);
 
         return ResponseEntity.ok(paginationResponseDTO);
     }
