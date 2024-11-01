@@ -6,14 +6,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import vn.hoidanit.jobhunter.domain.User;
+import vn.hoidanit.jobhunter.domain.dto.UserResponseDTO;
 import vn.hoidanit.jobhunter.domain.dto.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.annotation.ApiMessage;
+import vn.hoidanit.jobhunter.util.error.EmailExistException;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -26,22 +25,18 @@ public class UserController {
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<User> getUser(@PathVariable("id") Long id){
-        User user = this.userService.handleGetUser(id);
-        if(user!=null){
-         return ResponseEntity.ok(user);
-        }
-        else{
-            return ResponseEntity.noContent().build();
-        }
+    @ApiMessage("fetch user by id")
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable("id") Long id){
+        return ResponseEntity.ok(this.userService.handleGetUser(id));
     }
 
 
 
     @PostMapping("/user")
-    public ResponseEntity<User> createUser(@RequestBody User userRequest) {
-        User user = userService.handleUserCreate(userRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    @ApiMessage("create a new user")
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody User userRequest){
+        UserResponseDTO userCreated = userService.handleUserCreate(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
     }
 
     @GetMapping("/users")
@@ -55,21 +50,21 @@ public class UserController {
     }
 
     @PutMapping("/user")
-    public User updateUser(@RequestBody User userRequest){
-        return this.userService.handleUpdateUser(userRequest);
+    @ApiMessage("update user success")
+    public ResponseEntity<UserResponseDTO> updateUser(@RequestBody User userRequest){
+        UserResponseDTO userResponseDTO = this.userService.handleUpdateUser(userRequest);
+
+        return ResponseEntity.ok(userResponseDTO);
     }
 
 
 
 
     @DeleteMapping("/user/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") Long id) throws IdInvalidException {
-        if(id >10){
-//            System.out.println("ok");
-            throw new IdInvalidException("Id khong the lon hon 10");
-        }
+    @ApiMessage("deleted a user")
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) throws IdInvalidException {
 
-        String result = this.userService.handleUserDelete(id);
-        return ResponseEntity.ok(result);
+        this.userService.handleUserDelete(id);
+        return ResponseEntity.ok(null);
     }
 }

@@ -9,13 +9,15 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import vn.hoidanit.jobhunter.domain.RestResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class GlobalException {
+public class GlobalException{
     /*
     * in function loadUserByUsername() which we override in UserDetailsCustom.java, when can't find user by username, we throw
     * UsernameNotFoundException, then, spring security will catch and finally, it throws BadCredentialsException
@@ -38,11 +40,15 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
-    @ExceptionHandler(IdInvalidException.class)
-    public ResponseEntity<RestResponse<Object>> handleIdInvalidException(IdInvalidException ex){
+    @ExceptionHandler(value = {
+            IdInvalidException.class,
+            EmailExistException.class
+    })
+    public ResponseEntity<RestResponse<Object>> handleIdInvalidException(Exception ex){
         RestResponse<Object> res = new RestResponse<>();
-        res.setMessage(ex.getMessage());
-        res.setError(HttpStatus.BAD_REQUEST.name());
+
+        res.setMessage("Exception occur ....");
+        res.setError(ex.getLocalizedMessage());
         res.setStatusCode(HttpStatus.BAD_REQUEST.value());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
@@ -64,4 +70,25 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<RestResponse<Object>> handleResourceNotFoundException(NoResourceFoundException ex){
+        RestResponse<Object> res = new RestResponse<>();
+
+        res.setMessage("Exception occur ....");
+        res.setError(ex.getMessage());
+        res.setStatusCode(HttpStatus.NOT_FOUND.value());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<RestResponse<Object>> handleNullPointerException(NullPointerException ex){
+        RestResponse<Object> res = new RestResponse<>();
+
+        res.setMessage("Exception occur ....");
+        res.setError(ex.getMessage());
+        res.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
+    }
 }

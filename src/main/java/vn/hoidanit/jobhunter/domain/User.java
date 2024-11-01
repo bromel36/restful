@@ -1,14 +1,15 @@
 package vn.hoidanit.jobhunter.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.lang.annotation.Retention;
 import java.time.Instant;
+
+import vn.hoidanit.jobhunter.util.SecurityUtil;
+import vn.hoidanit.jobhunter.util.constant.GenderEnum;
 
 @Entity
 @Table(name = "users")
@@ -22,7 +23,15 @@ public class User {
     private String name;
     private String email;
     private String password;
+    private int age;
 
+    @Enumerated(value = EnumType.STRING)
+    private GenderEnum gender;
+
+    private String address;
+    private String refreshToken;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
     private Instant createdAt;
 
     private Instant updatedAt;
@@ -31,4 +40,20 @@ public class User {
 
     private String updatedBy;
 
+
+    @PrePersist
+    public void beforePersist() {
+        createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ?
+                SecurityUtil.getCurrentUserLogin().get()
+                : "";
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void beforeUpdate(){
+        updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ?
+                SecurityUtil.getCurrentUserLogin().get()
+                : "";
+        updatedAt = Instant.now();
+    }
 }

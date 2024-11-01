@@ -8,11 +8,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.User;
+import vn.hoidanit.jobhunter.domain.dto.UserResponseDTO;
 import vn.hoidanit.jobhunter.domain.dto.Meta;
 import vn.hoidanit.jobhunter.domain.dto.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.repository.UserRepository;
+import vn.hoidanit.jobhunter.util.error.EmailExistException;
+import vn.hoidanit.jobhunter.util.error.IdInvalidException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -25,18 +29,46 @@ public class UserService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public User handleUserCreate(User user) {
+    public UserResponseDTO handleUserCreate(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        if(userRepository.existsByEmail(user.getEmail())){
+            throw new EmailExistException("Email " + user.getEmail() + " is exist, please try difference email address");
+        }
+
+        userRepository.save(user);
+
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .address(user.getAddress())
+                .age(user.getAge())
+                .createdAt(user.getCreatedAt())
+                .gender(user.getGender())
+                .build() ;
     }
 
-    public String handleUserDelete(Long id) {
-        this.userRepository.deleteById(id);
-        return "deleted ";
+    public void handleUserDelete(Long id) {
+        if (userRepository.existsById(id)){
+            this.userRepository.deleteById(id);
+            return;
+        }
+        throw new IdInvalidException("Id with id= " + id + " is not exist");
     }
 
-    public User handleGetUser(Long id) {
-        return this.userRepository.findById(id).orElse(null);
+    public UserResponseDTO handleGetUser(Long id) {
+        User user = this.userRepository.findById(id)
+                .orElseThrow(() -> new IdInvalidException("User with id= " + id+ " does not exists "));
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .address(user.getAddress())
+                .age(user.getAge())
+                .gender(user.getGender())
+                .updatedAt(user.getUpdatedAt())
+                .createdAt(user.getCreatedAt())
+                .build() ;
     }
 
     public PaginationResponseDTO handleGetAllUsers(Specification<User> spec, Pageable pageable) {
@@ -47,26 +79,53 @@ public class UserService {
         PaginationResponseDTO paginationResponseDTO = new PaginationResponseDTO();
 
         meta.setPageSize(pageable.getPageSize());
-        meta.setPage(pageable.getPageNumber());
+        meta.setPage(pageable.getPageNumber() + 1);
 
         meta.setTotal(users.getTotalElements());
         meta.setPages(users.getTotalPages());
         meta.setTotalOfCurrentPage(users.getNumberOfElements());
 
         paginationResponseDTO.setMeta(meta);
-        paginationResponseDTO.setResult(users.getContent());
+        paginationResponseDTO.setResult(convertToUserResponseDTO(users.getContent()));
 
         return paginationResponseDTO;
     }
 
-    public User handleUpdateUser(User userRequest) {
-        if(this.userRepository.existsById(userRequest.getId())) {
-            return this.userRepository.save(userRequest);
-        }
-        return null;
+    public UserResponseDTO handleUpdateUser(User userRequest){
+        User user = this.userRepository.findById(userRequest.getId())
+                .orElseThrow(() -> new IdInvalidException("User with id= " + userRequest.getId()+ " does not exists "));
+        user.setName(userRequest.getName());
+        user.setAddress(userRequest.getAddress());
+        user.setAge(userRequest.getAge());
+        user.setGender(userRequest.getGender());
+
+        this.userRepository.save(user);
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .address(user.getAddress())
+                .age(user.getAge())
+                .gender(user.getGender())
+                .updatedAt(user.getUpdatedAt())
+                .build() ;
     }
 
     public User handleGetUserByUsername(String username) {
         return userRepository.findByEmail(username);
     }
+
+    public List<UserResponseDTO> convertToUserResponseDTO(List<User> users){
+        List<UserResponseDTO> result = users.stream().map(it -> UserResponseDTO.builder()
+                .id(it.getId())
+                .name(it.getName())
+                .email(it.getEmail())
+                .address(it.getAddress())
+                .age(it.getAge())
+                .gender(it.getGender())
+                .updatedAt(it.getUpdatedAt())
+                .createdAt(it.getCreatedAt())
+                .build()).collect(Collectors.toList());
+        return result;
+    }
+
 }
