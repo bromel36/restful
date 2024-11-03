@@ -128,4 +128,8 @@ public class UserService {
         return result;
     }
 
+    public User getUserByRefreshTokenAndEmail(String token, String email){
+        return userRepository.findByRefreshTokenAndEmail(token, email);
+    }
+
 }

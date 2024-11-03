@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.dto.LoginRequestDTO;
@@ -17,6 +18,7 @@ import vn.hoidanit.jobhunter.repository.UserRepository;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
 import vn.hoidanit.jobhunter.util.annotation.ApiMessage;
+import vn.hoidanit.jobhunter.util.error.IdInvalidException;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -50,41 +52,10 @@ public class AuthController {
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-
-
-        LoginResponseDTO responseLoginDTO = new LoginResponseDTO();
-
+        // authenticated
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User currentUserDB = userService.handleGetUserByUsername(loginDTO.getUsername());
-
-        if(currentUserDB != null){
-            LoginResponseDTO.UserLoginResponseDTO userLogin
-                    = new LoginResponseDTO.UserLoginResponseDTO(
-                            currentUserDB.getId(),
-                            currentUserDB.getName(),
-                            currentUserDB.getEmail()
-            );
-            responseLoginDTO.setUser(userLogin);
-        }
-
-        responseLoginDTO.setAccess_token(securityUtil.createAccessToken(authentication,responseLoginDTO));
-
-        String refreshToken = this.securityUtil.createRefreshToken(loginDTO.getUsername(),responseLoginDTO);
-
-        updateUserRefreshToken(currentUserDB, refreshToken);
-
-        ResponseCookie responseCookie = ResponseCookie.from("refresh_token", refreshToken)
-                .httpOnly(true)
-                .maxAge(refreshTokenExpiration)
-                .secure(true)
-                .path("/")
-
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
-                .body(responseLoginDTO);
+        return handleLoginOrRefreshCase(authentication.getName());
     }
 
 
@@ -109,9 +80,62 @@ public class AuthController {
     }
 
 
+    @PostMapping("auth/refresh")
+    @ApiMessage("Refresh token")
+    public ResponseEntity<LoginResponseDTO> handleRefreshToken(
+            @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken
+    ){
+        if(refreshToken.isBlank()){
+            throw new  IdInvalidException("refresh token is required");
+        }
+        Jwt decodedJWT = this.securityUtil.checkValidRefreshToken(refreshToken);
+
+        String email = decodedJWT.getSubject();
+
+        User user = this.userService.getUserByRefreshTokenAndEmail(refreshToken, email);
+        if(user == null){
+            throw new IdInvalidException("Refresh token is invalid!!!");
+        }
+        return handleLoginOrRefreshCase(email);
+    }
 
     public void updateUserRefreshToken(User user, String token){
         user.setRefreshToken(token);
         userRepository.save(user);
+    }
+
+    public ResponseCookie createCookie(String refreshToken){
+        return ResponseCookie.from("refresh_token", refreshToken)
+                .httpOnly(true)
+                .maxAge(refreshTokenExpiration)
+                .secure(true)
+                .path("/")
+
+                .build();
+    }
+
+    public ResponseEntity<LoginResponseDTO> handleLoginOrRefreshCase(String email){
+        LoginResponseDTO responseLoginDTO = new LoginResponseDTO();
+        User currentUserDB = userService.handleGetUserByUsername(email);
+
+        if(currentUserDB != null){
+            LoginResponseDTO.UserLoginResponseDTO userLogin
+                    = new LoginResponseDTO.UserLoginResponseDTO(
+                    currentUserDB.getId(),
+                    currentUserDB.getName(),
+                    currentUserDB.getEmail()
+            );
+            responseLoginDTO.setUser(userLogin);
+        }
+
+        responseLoginDTO.setAccess_token(securityUtil.createAccessToken(email,responseLoginDTO));
+
+        String refreshToken = this.securityUtil.createRefreshToken(email,responseLoginDTO);
+
+        updateUserRefreshToken(currentUserDB, refreshToken);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, createCookie(refreshToken).toString())
+                .body(responseLoginDTO);
     }
 }
