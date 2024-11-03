@@ -30,8 +30,10 @@ public class GlobalException{
     @ExceptionHandler(value = {
             UsernameNotFoundException.class,
             BadCredentialsException.class,
+            IdInvalidException.class,
+            EmailExistException.class
     })
-    public ResponseEntity<RestResponse<Object>> handleUsernameNotFoundException(BadCredentialsException ex){
+    public ResponseEntity<RestResponse<Object>> handleUsernameNotFoundException(Exception ex){
         RestResponse<Object> res = new RestResponse<>();
         res.setMessage("Exception occur ....");
         res.setError(ex.getMessage());
@@ -40,19 +42,18 @@ public class GlobalException{
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
-    @ExceptionHandler(value = {
-            IdInvalidException.class,
-            EmailExistException.class
-    })
-    public ResponseEntity<RestResponse<Object>> handleIdInvalidException(Exception ex){
-        RestResponse<Object> res = new RestResponse<>();
-
-        res.setMessage("Exception occur ....");
-        res.setError(ex.getLocalizedMessage());
-        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
-    }
+//    @ExceptionHandler(value = {
+//
+//    })
+//    public ResponseEntity<RestResponse<Object>> handleIdInvalidException(Exception ex){
+//        RestResponse<Object> res = new RestResponse<>();
+//
+//        res.setMessage("Exception occur ....");
+//        res.setError(ex.getLocalizedMessage());
+//        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+//
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+//    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<RestResponse<Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
@@ -74,7 +75,7 @@ public class GlobalException{
     public ResponseEntity<RestResponse<Object>> handleResourceNotFoundException(NoResourceFoundException ex){
         RestResponse<Object> res = new RestResponse<>();
 
-        res.setMessage("Exception occur ....");
+        res.setMessage("404 Not found. URL may not does exists...");
         res.setError(ex.getMessage());
         res.setStatusCode(HttpStatus.NOT_FOUND.value());
 
@@ -85,7 +86,7 @@ public class GlobalException{
     public ResponseEntity<RestResponse<Object>> handleNullPointerException(NullPointerException ex){
         RestResponse<Object> res = new RestResponse<>();
 
-        res.setMessage("Exception occur ....");
+        res.setMessage("Null pointer exception, please double-check");
         res.setError(ex.getMessage());
         res.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
 
