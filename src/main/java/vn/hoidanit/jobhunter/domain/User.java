@@ -29,6 +29,7 @@ public class User {
     private GenderEnum gender;
 
     private String address;
+
     private String refreshToken;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")

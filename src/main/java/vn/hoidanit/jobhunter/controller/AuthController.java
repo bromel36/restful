@@ -1,6 +1,9 @@
 package vn.hoidanit.jobhunter.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.dto.LoginRequestDTO;
 import vn.hoidanit.jobhunter.domain.dto.LoginResponseDTO;
+import vn.hoidanit.jobhunter.repository.UserRepository;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
 import vn.hoidanit.jobhunter.util.annotation.ApiMessage;
@@ -24,11 +28,18 @@ public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, UserService userService) {
+
+    @Value("${hoidanit.jwt.refresh-token-validity-in-seconds}")
+    private long refreshTokenExpiration;
+
+
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, UserService userService, UserRepository userRepository) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
+        this.userRepository = userRepository;
     }
     @PostMapping("/login")
     @ApiMessage("success login")
@@ -62,6 +73,24 @@ public class AuthController {
         }
 
         String refreshToken = this.securityUtil.createRefreshToken(loginDTO.getUsername(),responseLoginDTO);
-        return ResponseEntity.ok(responseLoginDTO);
+
+        updateUserRefreshToken(currentUserDB, refreshToken);
+
+        ResponseCookie responseCookie = ResponseCookie.from("refresh_token", refreshToken)
+                .httpOnly(true)
+                .maxAge(refreshTokenExpiration)
+                .secure(true)
+                .path("/")
+
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(responseLoginDTO);
+    }
+
+    public void updateUserRefreshToken(User user, String token){
+        user.setRefreshToken(token);
+        userRepository.save(user);
     }
 }
