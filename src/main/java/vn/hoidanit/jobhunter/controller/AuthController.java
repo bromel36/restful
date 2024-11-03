@@ -9,10 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.dto.LoginRequestDTO;
 import vn.hoidanit.jobhunter.domain.dto.LoginResponseDTO;
@@ -41,7 +38,7 @@ public class AuthController {
         this.userService = userService;
         this.userRepository = userRepository;
     }
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     @ApiMessage("success login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDTO){
 
@@ -56,7 +53,6 @@ public class AuthController {
 
 
         LoginResponseDTO responseLoginDTO = new LoginResponseDTO();
-        responseLoginDTO.setAccess_token(securityUtil.createAccessToken(authentication));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -71,6 +67,8 @@ public class AuthController {
             );
             responseLoginDTO.setUser(userLogin);
         }
+
+        responseLoginDTO.setAccess_token(securityUtil.createAccessToken(authentication,responseLoginDTO));
 
         String refreshToken = this.securityUtil.createRefreshToken(loginDTO.getUsername(),responseLoginDTO);
 
@@ -88,6 +86,29 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(responseLoginDTO);
     }
+
+
+    @GetMapping("/auth/account")
+    public ResponseEntity<LoginResponseDTO.UserLoginResponseDTO> getAccount(){
+        String username = SecurityUtil.getCurrentUserLogin().orElse(null);
+
+        User currentUserDB = userService.handleGetUserByUsername(username);
+
+        LoginResponseDTO.UserLoginResponseDTO userLogin = null;
+
+        if(currentUserDB != null){
+            userLogin
+                    = new LoginResponseDTO.UserLoginResponseDTO(
+                    currentUserDB.getId(),
+                    currentUserDB.getName(),
+                    currentUserDB.getEmail()
+            );
+        }
+
+        return ResponseEntity.ok().body(userLogin);
+    }
+
+
 
     public void updateUserRefreshToken(User user, String token){
         user.setRefreshToken(token);
