@@ -45,7 +45,7 @@ public class AuthController {
 
 
         LoginResponseDTO responseLoginDTO = new LoginResponseDTO();
-        responseLoginDTO.setAccess_token(securityUtil.createToken(authentication));
+        responseLoginDTO.setAccess_token(securityUtil.createAccessToken(authentication));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -60,6 +60,8 @@ public class AuthController {
             );
             responseLoginDTO.setUser(userLogin);
         }
+
+        String refreshToken = this.securityUtil.createRefreshToken(loginDTO.getUsername(),responseLoginDTO);
         return ResponseEntity.ok(responseLoginDTO);
     }
 }
