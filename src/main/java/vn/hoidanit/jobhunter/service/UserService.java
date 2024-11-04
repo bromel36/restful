@@ -132,4 +132,9 @@ public class UserService {
         return userRepository.findByRefreshTokenAndEmail(token, email);
     }
 
+    public void updateUserRefreshToken(User user, String token){
+        user.setRefreshToken(token);
+        userRepository.save(user);
+    }
+
 }

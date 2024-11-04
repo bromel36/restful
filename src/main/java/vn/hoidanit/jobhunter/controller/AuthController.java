@@ -2,6 +2,7 @@ package vn.hoidanit.jobhunter.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,6 @@ public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
     private final UserService userService;
-    private final UserRepository userRepository;
 
 
     @Value("${hoidanit.jwt.refresh-token-validity-in-seconds}")
@@ -38,7 +38,6 @@ public class AuthController {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
-        this.userRepository = userRepository;
     }
     @PostMapping("/auth/login")
     @ApiMessage("success login")
@@ -60,27 +59,28 @@ public class AuthController {
 
 
     @GetMapping("/auth/account")
-    public ResponseEntity<LoginResponseDTO.UserLoginResponseDTO> getAccount(){
+    public ResponseEntity<LoginResponseDTO> getAccount(){
         String username = SecurityUtil.getCurrentUserLogin().orElse(null);
 
         User currentUserDB = userService.handleGetUserByUsername(username);
 
-        LoginResponseDTO.UserLoginResponseDTO userLogin = null;
+        LoginResponseDTO result = new LoginResponseDTO();
 
         if(currentUserDB != null){
-            userLogin
+            LoginResponseDTO.UserLoginResponseDTO userLogin
                     = new LoginResponseDTO.UserLoginResponseDTO(
                     currentUserDB.getId(),
                     currentUserDB.getName(),
                     currentUserDB.getEmail()
             );
+            result.setUser(userLogin);
         }
 
-        return ResponseEntity.ok().body(userLogin);
+        return ResponseEntity.ok().body(result);
     }
 
 
-    @PostMapping("auth/refresh")
+    @GetMapping("/auth/refresh")
     @ApiMessage("Refresh token")
     public ResponseEntity<LoginResponseDTO> handleRefreshToken(
             @CookieValue(value = "refresh_token", defaultValue = "") String refreshToken
@@ -99,15 +99,26 @@ public class AuthController {
         return handleLoginOrRefreshCase(email);
     }
 
-    public void updateUserRefreshToken(User user, String token){
-        user.setRefreshToken(token);
-        userRepository.save(user);
+    @PostMapping("/auth/logout")
+    @ApiMessage("Logout user")
+    public ResponseEntity<Void> logout(){
+        String username = SecurityUtil.getCurrentUserLogin().orElse("");
+        User currentUser = userService.handleGetUserByUsername(username);
+
+        if(currentUser != null){
+            this.userService.updateUserRefreshToken(currentUser, null);
+
+            HttpCookie deleteCookie = createCookie(null, 0);
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, deleteCookie.toString()).body(null);
+        }
+        throw new IdInvalidException("Logout user is invalid!!!");
     }
 
-    public ResponseCookie createCookie(String refreshToken){
+
+    public ResponseCookie createCookie(String refreshToken, long maxAge ){
         return ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(true)
-                .maxAge(refreshTokenExpiration)
+                .maxAge(maxAge)
                 .secure(true)
                 .path("/")
 
@@ -128,14 +139,14 @@ public class AuthController {
             responseLoginDTO.setUser(userLogin);
         }
 
-        responseLoginDTO.setAccess_token(securityUtil.createAccessToken(email,responseLoginDTO));
+        responseLoginDTO.setAccessToken(securityUtil.createAccessToken(email,responseLoginDTO));
 
         String refreshToken = this.securityUtil.createRefreshToken(email,responseLoginDTO);
 
-        updateUserRefreshToken(currentUserDB, refreshToken);
+        this.userService.updateUserRefreshToken(currentUserDB, refreshToken);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, createCookie(refreshToken).toString())
+                .header(HttpHeaders.SET_COOKIE, createCookie(refreshToken, refreshTokenExpiration).toString())
                 .body(responseLoginDTO);
     }
 }

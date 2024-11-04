@@ -28,11 +28,11 @@ public class UserResponseDTO {
 
     private String address;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Instant createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Instant updatedAt;
 }

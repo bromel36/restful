@@ -24,7 +24,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/users/{id}")
     @ApiMessage("fetch user by id")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable("id") Long id){
         return ResponseEntity.ok(this.userService.handleGetUser(id));
@@ -32,7 +32,7 @@ public class UserController {
 
 
 
-    @PostMapping("/user")
+    @PostMapping("/users")
     @ApiMessage("create a new user")
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody User userRequest){
         UserResponseDTO userCreated = userService.handleUserCreate(userRequest);
@@ -49,7 +49,7 @@ public class UserController {
         return ResponseEntity.ok(paginationResponseDTO);
     }
 
-    @PutMapping("/user")
+    @PutMapping("/users")
     @ApiMessage("update user success")
     public ResponseEntity<UserResponseDTO> updateUser(@RequestBody User userRequest){
         UserResponseDTO userResponseDTO = this.userService.handleUpdateUser(userRequest);
@@ -60,7 +60,7 @@ public class UserController {
 
 
 
-    @DeleteMapping("/user/{id}")
+    @DeleteMapping("/users/{id}")
     @ApiMessage("deleted a user")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) throws IdInvalidException {
 
