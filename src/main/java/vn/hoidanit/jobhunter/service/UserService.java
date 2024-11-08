@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.dto.UserResponseDTO;
-import vn.hoidanit.jobhunter.domain.dto.Meta;
 import vn.hoidanit.jobhunter.domain.dto.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.repository.UserRepository;
 import vn.hoidanit.jobhunter.util.error.EmailExistException;
@@ -75,7 +74,7 @@ public class UserService {
 
         Page<User> users = userRepository.findAll(spec, pageable);
 
-        Meta meta = new Meta();
+        PaginationResponseDTO.Meta meta = new PaginationResponseDTO.Meta();
         PaginationResponseDTO paginationResponseDTO = new PaginationResponseDTO();
 
         meta.setPageSize(pageable.getPageSize());
