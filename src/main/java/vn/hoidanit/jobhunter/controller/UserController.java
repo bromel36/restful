@@ -7,11 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.hoidanit.jobhunter.domain.User;
-import vn.hoidanit.jobhunter.domain.dto.UserResponseDTO;
-import vn.hoidanit.jobhunter.domain.dto.PaginationResponseDTO;
+import vn.hoidanit.jobhunter.domain.response.UserResponseDTO;
+import vn.hoidanit.jobhunter.domain.response.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.annotation.ApiMessage;
-import vn.hoidanit.jobhunter.util.error.EmailExistException;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
 
 @RestController

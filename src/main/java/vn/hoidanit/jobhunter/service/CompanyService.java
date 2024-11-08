@@ -5,8 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.hoidanit.jobhunter.domain.Company;
-import vn.hoidanit.jobhunter.domain.dto.CompanyDTO;
-import vn.hoidanit.jobhunter.domain.dto.PaginationResponseDTO;
+import vn.hoidanit.jobhunter.domain.request.CompanyRequestDTO;
+import vn.hoidanit.jobhunter.domain.response.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.repository.CompanyRepository;
 
 @Service
@@ -16,7 +16,7 @@ public class CompanyService {
     public CompanyService(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
     }
-    public Company handleInsertOrUpdateCompany(CompanyDTO dto) {
+    public Company handleInsertOrUpdateCompany(CompanyRequestDTO dto) {
         Company company = new Company();
         if(dto.getId()!= null){
             company = companyRepository.findById(dto.getId()).orElse(null);

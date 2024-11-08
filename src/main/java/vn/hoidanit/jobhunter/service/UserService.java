@@ -8,8 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.User;
-import vn.hoidanit.jobhunter.domain.dto.UserResponseDTO;
-import vn.hoidanit.jobhunter.domain.dto.PaginationResponseDTO;
+import vn.hoidanit.jobhunter.domain.response.UserResponseDTO;
+import vn.hoidanit.jobhunter.domain.response.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.repository.UserRepository;
 import vn.hoidanit.jobhunter.util.error.EmailExistException;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
