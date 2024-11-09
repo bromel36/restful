@@ -8,6 +8,10 @@ import vn.hoidanit.jobhunter.domain.Company;
 import vn.hoidanit.jobhunter.domain.request.CompanyRequestDTO;
 import vn.hoidanit.jobhunter.domain.response.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.repository.CompanyRepository;
+import vn.hoidanit.jobhunter.util.error.IdInvalidException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CompanyService {
@@ -44,7 +48,9 @@ public class CompanyService {
         meta.setTotal(companyPage.getTotalElements());
         meta.setTotalOfCurrentPage(companyPage.getNumberOfElements());
 
-        paginationResponseDTO.setResult(companyPage.getContent());
+        List<Company> result = companyPage.getContent();
+
+        paginationResponseDTO.setResult(result);
         paginationResponseDTO.setMeta(meta);
 
         return paginationResponseDTO;
@@ -52,5 +58,12 @@ public class CompanyService {
 
     public void handleDeleteCompany(Long id) {
         companyRepository.deleteById(id);
+    }
+
+    public Company handleFetchCompanyById(Long id) {
+        Company company = this.companyRepository.findById(id).orElseThrow(
+                () -> new IdInvalidException("Id not found")
+                );
+        return company;
     }
 }

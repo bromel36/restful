@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import vn.hoidanit.jobhunter.domain.Company;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.response.UserResponseDTO;
 import vn.hoidanit.jobhunter.domain.response.PaginationResponseDTO;
@@ -22,10 +23,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserService(UserRepository userRepository) {
+    private final CompanyService companyService;
+    public UserService(UserRepository userRepository, CompanyService companyService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
+        this.companyService = companyService;
     }
 
     public UserResponseDTO handleUserCreate(User user) {
@@ -34,8 +36,9 @@ public class UserService {
             throw new EmailExistException("Email " + user.getEmail() + " is exist, please try difference email address");
         }
 
-        userRepository.save(user);
+        Company company = checkExistCompany(user);
 
+        userRepository.save(user);
         return UserResponseDTO.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -44,6 +47,7 @@ public class UserService {
                 .age(user.getAge())
                 .createdAt(user.getCreatedAt())
                 .gender(user.getGender())
+                .company(new UserResponseDTO.CompanyResponse(company.getId(),company.getName()))
                 .build() ;
     }
 
@@ -58,6 +62,7 @@ public class UserService {
     public UserResponseDTO handleGetUser(Long id) {
         User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new IdInvalidException("User with id= " + id+ " does not exists "));
+        Company company = user.getCompany();
         return UserResponseDTO.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -67,6 +72,7 @@ public class UserService {
                 .gender(user.getGender())
                 .updatedAt(user.getUpdatedAt())
                 .createdAt(user.getCreatedAt())
+                .company(new UserResponseDTO.CompanyResponse(company.getId(),company.getName()))
                 .build() ;
     }
 
@@ -98,6 +104,10 @@ public class UserService {
         user.setAge(userRequest.getAge());
         user.setGender(userRequest.getGender());
 
+        Company company = checkExistCompany(userRequest);
+
+        user.setCompany(company);
+
         this.userRepository.save(user);
         return UserResponseDTO.builder()
                 .id(user.getId())
@@ -106,6 +116,7 @@ public class UserService {
                 .age(user.getAge())
                 .gender(user.getGender())
                 .updatedAt(user.getUpdatedAt())
+                .company(new UserResponseDTO.CompanyResponse(company.getId(),company.getName()))
                 .build() ;
     }
 
@@ -123,6 +134,7 @@ public class UserService {
                 .gender(it.getGender())
                 .updatedAt(it.getUpdatedAt())
                 .createdAt(it.getCreatedAt())
+                .company(it.getCompany()== null ? null : new UserResponseDTO.CompanyResponse(it.getCompany().getId(),it.getCompany().getName()))
                 .build()).collect(Collectors.toList());
         return result;
     }
@@ -136,4 +148,12 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public Company checkExistCompany(User user){
+        if(user.getCompany()== null || user.getCompany().getId() == null){
+            return null;
+        }
+
+        Company company = companyService.handleFetchCompanyById(user.getCompany().getId());
+        return company;
+    }
 }

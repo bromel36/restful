@@ -2,6 +2,7 @@ package vn.hoidanit.jobhunter.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +40,8 @@ public class Company {
 
     private String updatedBy;
 
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
+    @JsonIgnore
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY,cascade = {CascadeType.MERGE,CascadeType.PERSIST},orphanRemoval = true)
     List<User> users;
 
     @PrePersist

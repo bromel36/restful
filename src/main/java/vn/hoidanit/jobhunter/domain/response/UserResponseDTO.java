@@ -3,9 +3,7 @@ package vn.hoidanit.jobhunter.domain.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import vn.hoidanit.jobhunter.util.constant.GenderEnum;
 
 import java.time.Instant;
@@ -27,11 +25,22 @@ public class UserResponseDTO {
 
     private String address;
 
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
+    private CompanyResponse company;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Instant createdAt;
 
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Instant updatedAt;
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CompanyResponse{
+        private Long id;
+        private String name;
+    }
+
 }

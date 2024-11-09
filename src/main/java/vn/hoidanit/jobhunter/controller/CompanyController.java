@@ -12,18 +12,26 @@ import vn.hoidanit.jobhunter.domain.Company;
 import vn.hoidanit.jobhunter.domain.request.CompanyRequestDTO;
 import vn.hoidanit.jobhunter.domain.response.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.service.CompanyService;
+import vn.hoidanit.jobhunter.service.UserService;
 
 @RestController
 @RequestMapping("/api/v1")
 public class CompanyController {
 
     private final CompanyService companyService;
+    private final UserService userService;
 
-    public CompanyController(CompanyService companyService) {
+    public CompanyController(CompanyService companyService, UserService userService) {
         this.companyService = companyService;
+        this.userService = userService;
     }
 
 
+    @GetMapping("/companies/{id}")
+    public ResponseEntity<Company> getCompany(@PathVariable("id") Long id) {
+
+        return ResponseEntity.ok().body(companyService.handleFetchCompanyById(id));
+    }
     @GetMapping("/companies")
     public ResponseEntity<PaginationResponseDTO> getAll(
             @Filter Specification<Company> spec,
