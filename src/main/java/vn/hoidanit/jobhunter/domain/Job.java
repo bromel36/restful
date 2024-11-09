@@ -1,65 +1,69 @@
 package vn.hoidanit.jobhunter.domain;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
+import vn.hoidanit.jobhunter.util.constant.LevelEnum;
 
 import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name = "companies")
+@Table(name = "jobs")
 @Getter
 @Setter
-public class Company {
-
+public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
+    private String location;
+    private Double salary;
+    private Integer quantity;
+    private LevelEnum level;
 
-    @Column(columnDefinition = "MEDIUMTEXT")
+    @Column(columnDefinition = "longText")
     private String description;
 
-    private String address;
+    private Instant startDate;
+    private Instant endDate;
+    private Boolean isActive;
 
-    private String logo;
-
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
     private Instant createdAt;
 
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
     private Instant updatedAt;
 
     private String createdBy;
 
     private String updatedBy;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY,cascade = {CascadeType.MERGE,CascadeType.PERSIST},orphanRemoval = true)
-    List<User> users;
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
 
+    @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnore
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY,cascade = {CascadeType.MERGE,CascadeType.PERSIST},orphanRemoval = true)
-    List<Job> jobs;
+    @JoinTable(name = "job_skill", joinColumns = @JoinColumn(name = "job_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    private List<Skill> skills;
+
 
     @PrePersist
-    public void handleBeforeInsert(){
+    public void beforePersist() {
         createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ?
-                    SecurityUtil.getCurrentUserLogin().get()
-                    : "";
+                SecurityUtil.getCurrentUserLogin().get()
+                : "";
         createdAt = Instant.now();
     }
 
     @PreUpdate
-    public void handleBeforeUpdate(){
+    public void beforeUpdate(){
         updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ?
                 SecurityUtil.getCurrentUserLogin().get()
                 : "";
         updatedAt = Instant.now();
     }
+
 }
