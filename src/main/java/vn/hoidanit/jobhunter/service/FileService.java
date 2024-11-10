@@ -3,6 +3,7 @@ package vn.hoidanit.jobhunter.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import vn.hoidanit.jobhunter.domain.response.FileResponseDTO;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 
 @Service
 public class FileService {
@@ -37,7 +39,7 @@ public class FileService {
         }
     }
 
-    public String storeFile(MultipartFile file, String folder) throws URISyntaxException, IOException {
+    public FileResponseDTO storeFile(MultipartFile file, String folder) throws URISyntaxException, IOException {
 
         String fileName = System.currentTimeMillis() + "-" + file.getOriginalFilename();
 
@@ -50,7 +52,10 @@ public class FileService {
         try(InputStream in = file.getInputStream()){
             Files.copy(in,path, StandardCopyOption.REPLACE_EXISTING);
         }
-        return encodedFileName;
+        return FileResponseDTO.builder()
+                .name(encodedFileName)
+                .uploadedTime(Instant.now())
+                .build();
     }
 
 }
