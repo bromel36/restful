@@ -1,13 +1,13 @@
 package vn.hoidanit.jobhunter.service;
 
 
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.hoidanit.jobhunter.domain.response.FileResponseDTO;
+import vn.hoidanit.jobhunter.util.constant.FileConstant;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -58,4 +58,27 @@ public class FileService {
                 .build();
     }
 
+    public long getFileLength(String file, String folder) throws URISyntaxException {
+        URI uri = new URI(FileConstant.getBaseURI() + folder + "/" + file);
+
+        Path path = Paths.get(uri);
+
+        File tmpDir = new File(path.toString());
+
+        if(tmpDir.isDirectory() || !tmpDir.exists()){
+            return 0;
+        }
+        return tmpDir.length();
+    }
+
+
+    public InputStreamResource getResource(String file, String folder) throws FileNotFoundException, URISyntaxException {
+        URI uri = new URI(FileConstant.getBaseURI() + folder + "/" + file);
+
+        Path path = Paths.get(uri);
+
+        File tmpDir = new File(path.toString());
+
+        return new InputStreamResource(new FileInputStream(tmpDir));
+    }
 }
