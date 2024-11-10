@@ -12,8 +12,8 @@ public class HelloController {
         this.userService = userService;
     }
     @GetMapping("/")
-    public String getAllUsers(){
+    public String getHelloWorld(){
 
-        return "Toi la bromel";
+        return "Hello world";
     } 
 }
