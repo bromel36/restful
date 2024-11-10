@@ -47,7 +47,7 @@ public class UserService {
                 .age(user.getAge())
                 .createdAt(user.getCreatedAt())
                 .gender(user.getGender())
-                .company(new UserResponseDTO.CompanyResponse(company.getId(),company.getName()))
+                .company(company!= null ? new UserResponseDTO.CompanyResponse(company.getId(),company.getName()) : null)
                 .build() ;
     }
 
@@ -149,7 +149,10 @@ public class UserService {
     }
 
     public Company checkExistCompany(User user){
-        if(user.getCompany()== null || user.getCompany().getId() == null){
+        if(user.getCompany()== null ){
+            return null;
+        }
+        else if(user.getCompany().getId() == null){
             return null;
         }
 

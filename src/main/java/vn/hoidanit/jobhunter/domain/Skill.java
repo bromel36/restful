@@ -1,6 +1,8 @@
 package vn.hoidanit.jobhunter.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
@@ -18,6 +20,7 @@ public class Skill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Skill name is required")
     private String name;
 
     private Instant createdAt;
@@ -29,7 +32,8 @@ public class Skill {
     private String updatedBy;
 
 
-    @ManyToMany(mappedBy = "skills")
+    @ManyToMany(mappedBy = "skills",fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Job> jobs;
 
     @PrePersist
