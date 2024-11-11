@@ -41,4 +41,6 @@ public class JobResponseDTO {
 
     private List<String> skills;
 
+
+
 }

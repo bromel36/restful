@@ -10,6 +10,6 @@ import java.time.Instant;
 @Getter
 @Setter
 public class FileResponseDTO {
-    private String name;
+    private String fileName;
     private Instant uploadedTime;
 }

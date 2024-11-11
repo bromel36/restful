@@ -1,37 +1,33 @@
 package vn.hoidanit.jobhunter.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import vn.hoidanit.jobhunter.util.SecurityUtil;
+import vn.hoidanit.jobhunter.util.constant.ResumeStateEnum;
 
 import java.time.Instant;
-import java.util.List;
-
-import vn.hoidanit.jobhunter.util.SecurityUtil;
-import vn.hoidanit.jobhunter.util.constant.GenderEnum;
 
 @Entity
-@Table(name = "users")
+@Table(name = "resume")
 @Getter
 @Setter
-public class User {
+public class Resume {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+
+    @NotBlank(message = "Email must not be empty")
     private String email;
-    private String password;
-    private int age;
 
-    @Enumerated(value = EnumType.STRING)
-    private GenderEnum gender;
+    @NotBlank(message = "Url must not be empty (Might resume upload failed)")
+    private String url;
 
-    private String address;
+    @Enumerated(EnumType.STRING)
+    private ResumeStateEnum status;
 
-    private String refreshToken;
-
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
     private Instant createdAt;
 
     private Instant updatedAt;
@@ -41,16 +37,13 @@ public class User {
     private String updatedBy;
 
     @ManyToOne
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Resume> resumes ;
 
     @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
-
+    @JoinColumn(name = "job_id")
+    private Job job;
 
     @PrePersist
     public void beforePersist() {

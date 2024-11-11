@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import vn.hoidanit.jobhunter.domain.Company;
+import vn.hoidanit.jobhunter.domain.Role;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.response.UserResponseDTO;
 import vn.hoidanit.jobhunter.domain.response.PaginationResponseDTO;
@@ -15,6 +16,7 @@ import vn.hoidanit.jobhunter.repository.UserRepository;
 import vn.hoidanit.jobhunter.util.error.EmailExistException;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,10 +26,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CompanyService companyService;
-    public UserService(UserRepository userRepository, CompanyService companyService, PasswordEncoder passwordEncoder) {
+    private final RoleService roleService;
+
+
+    public UserService(UserRepository userRepository, CompanyService companyService,
+                       PasswordEncoder passwordEncoder, RoleService roleService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.companyService = companyService;
+        this.roleService = roleService;
     }
 
     public UserResponseDTO handleUserCreate(User user) {
@@ -37,18 +44,34 @@ public class UserService {
         }
 
         Company company = checkExistCompany(user);
+        user.setCompany(company);
+
+        Role role = checkExistRole(user);
+        user.setRole(role);
 
         userRepository.save(user);
-        return UserResponseDTO.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .address(user.getAddress())
-                .age(user.getAge())
-                .createdAt(user.getCreatedAt())
-                .gender(user.getGender())
-                .company(company!= null ? new UserResponseDTO.CompanyResponse(company.getId(),company.getName()) : null)
-                .build() ;
+
+        return convertToUserResponseDTO(user,"create");
+    }
+
+    public UserResponseDTO handleUpdateUser(User userRequest){
+        User user = this.userRepository.findById(userRequest.getId())
+                .orElseThrow(() -> new IdInvalidException("User with id= " + userRequest.getId()+ " does not exists "));
+
+        user.setName(userRequest.getName());
+        user.setAddress(userRequest.getAddress());
+        user.setAge(userRequest.getAge());
+        user.setGender(userRequest.getGender());
+
+        Company company = checkExistCompany(userRequest);
+        user.setCompany(company);
+
+        Role role = checkExistRole(userRequest);
+        user.setRole(role);
+
+        this.userRepository.save(user);
+
+        return convertToUserResponseDTO(user,"update");
     }
 
     public void handleUserDelete(Long id) {
@@ -59,21 +82,11 @@ public class UserService {
         throw new IdInvalidException("Id with id= " + id + " is not exist");
     }
 
-    public UserResponseDTO handleGetUser(Long id) {
+    public UserResponseDTO handleFetchUserById(Long id) {
         User user = this.userRepository.findById(id)
                 .orElseThrow(() -> new IdInvalidException("User with id= " + id+ " does not exists "));
         Company company = user.getCompany();
-        return UserResponseDTO.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .address(user.getAddress())
-                .age(user.getAge())
-                .gender(user.getGender())
-                .updatedAt(user.getUpdatedAt())
-                .createdAt(user.getCreatedAt())
-                .company(new UserResponseDTO.CompanyResponse(company.getId(),company.getName()))
-                .build() ;
+        return convertToUserResponseDTO(user, "fetch");
     }
 
     public PaginationResponseDTO handleGetAllUsers(Specification<User> spec, Pageable pageable) {
@@ -91,52 +104,47 @@ public class UserService {
         meta.setTotalOfCurrentPage(users.getNumberOfElements());
 
         paginationResponseDTO.setMeta(meta);
-        paginationResponseDTO.setResult(convertToUserResponseDTO(users.getContent()));
+
+        List<UserResponseDTO> result = users.getContent()
+                .stream()
+                .map(it-> convertToUserResponseDTO(it, "fetch"))
+                .toList();
+
+        paginationResponseDTO.setResult(result);
 
         return paginationResponseDTO;
     }
 
-    public UserResponseDTO handleUpdateUser(User userRequest){
-        User user = this.userRepository.findById(userRequest.getId())
-                .orElseThrow(() -> new IdInvalidException("User with id= " + userRequest.getId()+ " does not exists "));
-        user.setName(userRequest.getName());
-        user.setAddress(userRequest.getAddress());
-        user.setAge(userRequest.getAge());
-        user.setGender(userRequest.getGender());
 
-        Company company = checkExistCompany(userRequest);
-
-        user.setCompany(company);
-
-        this.userRepository.save(user);
-        return UserResponseDTO.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .address(user.getAddress())
-                .age(user.getAge())
-                .gender(user.getGender())
-                .updatedAt(user.getUpdatedAt())
-                .company(new UserResponseDTO.CompanyResponse(company.getId(),company.getName()))
-                .build() ;
-    }
 
     public User handleGetUserByUsername(String username) {
         return userRepository.findByEmail(username);
     }
 
-    public List<UserResponseDTO> convertToUserResponseDTO(List<User> users){
-        List<UserResponseDTO> result = users.stream().map(it -> UserResponseDTO.builder()
-                .id(it.getId())
-                .name(it.getName())
-                .email(it.getEmail())
-                .address(it.getAddress())
-                .age(it.getAge())
-                .gender(it.getGender())
-                .updatedAt(it.getUpdatedAt())
-                .createdAt(it.getCreatedAt())
-                .company(it.getCompany()== null ? null : new UserResponseDTO.CompanyResponse(it.getCompany().getId(),it.getCompany().getName()))
-                .build()).collect(Collectors.toList());
-        return result;
+
+    public UserResponseDTO convertToUserResponseDTO(User user, String action){
+        Instant createdAt = action.equals("update") ? null : user.getCreatedAt();
+        Instant updatedAt = action.equals("create") ? null : user.getUpdatedAt();
+
+        UserResponseDTO.RoleResponse role = null;
+        if(user.getRole()!= null){
+            role = new UserResponseDTO.RoleResponse(user.getRole().getId(), user.getRole().getName());
+        }
+
+        UserResponseDTO.CompanyResponse company = user.getCompany()!= null ? new UserResponseDTO.CompanyResponse(user.getCompany().getId(),user.getCompany().getName()) : null;
+
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .address(user.getAddress())
+                .age(user.getAge())
+                .gender(user.getGender())
+                .updatedAt(updatedAt)
+                .createdAt(createdAt)
+                .company(company)
+                .role(role)
+                .build() ;
     }
 
     public User getUserByRefreshTokenAndEmail(String token, String email){
@@ -158,5 +166,21 @@ public class UserService {
 
         Company company = companyService.handleFetchCompanyById(user.getCompany().getId());
         return company;
+    }
+
+    public Role checkExistRole(User user){
+        if(user.getRole()== null ){
+            return null;
+        }
+        else if(user.getRole().getId() == null){
+            return null;
+        }
+
+        Role role = roleService.handleFetchRoleById(user.getRole().getId());
+        return role;
+    }
+
+    public boolean isExistUser(Long id){
+        return this.userRepository.existsById(id);
     }
 }

@@ -17,8 +17,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
-import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
 
@@ -36,13 +34,20 @@ public class SecurityConfiguration {
     @Value("${hoidanit.jwt.base64-secret}")
     private String jwtKey;
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
+
+        String[] whiteList ={
+                "/","/api/v1/auth/login","/api/v1/auth/refresh","/storage/**",
+                "/api/v1/companies/**", "/api/v1/jobs/**"
+        };
+
         http
                 .csrf(c -> c.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(
-                        authz -> authz.requestMatchers("/", "/api/v1/auth/login","/api/v1/auth/refresh","/storage/**").permitAll()
+                        authz -> authz.requestMatchers(whiteList).permitAll()
 
                                 .anyRequest().authenticated()
 //                                .anyRequest().permitAll()

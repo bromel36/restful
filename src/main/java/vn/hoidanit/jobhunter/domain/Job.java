@@ -23,6 +23,8 @@ public class Job {
     private String location;
     private Double salary;
     private Integer quantity;
+
+    @Enumerated(value = EnumType.STRING)
     private LevelEnum level;
 
     @Column(columnDefinition = "longText")
@@ -50,6 +52,9 @@ public class Job {
             inverseJoinColumns = @JoinColumn(name = "skill_id"))
     private List<Skill> skills;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "job", fetch = FetchType.LAZY)
+    private List<Resume> resumes ;
 
     @PrePersist
     public void beforePersist() {

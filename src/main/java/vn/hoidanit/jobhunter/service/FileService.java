@@ -53,7 +53,7 @@ public class FileService {
             Files.copy(in,path, StandardCopyOption.REPLACE_EXISTING);
         }
         return FileResponseDTO.builder()
-                .name(encodedFileName)
+                .fileName(encodedFileName)
                 .uploadedTime(Instant.now())
                 .build();
     }

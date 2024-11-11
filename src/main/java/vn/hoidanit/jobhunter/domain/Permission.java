@@ -1,37 +1,35 @@
 package vn.hoidanit.jobhunter.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import vn.hoidanit.jobhunter.util.SecurityUtil;
 
 import java.time.Instant;
 import java.util.List;
 
-import vn.hoidanit.jobhunter.util.SecurityUtil;
-import vn.hoidanit.jobhunter.util.constant.GenderEnum;
-
 @Entity
-@Table(name = "users")
 @Getter
 @Setter
-public class User {
+@Table(name = "permissions")
+public class Permission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
-    private String email;
-    private String password;
-    private int age;
 
-    @Enumerated(value = EnumType.STRING)
-    private GenderEnum gender;
+    @NotBlank(message = "API path must be filled")
+    private String apiPath;
 
-    private String address;
+    @NotBlank(message = "HTTP Method must be filled")
+    private String method;
 
-    private String refreshToken;
-
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a",timezone = "GMT+7")
+    @NotBlank(message = "Module must be filled")
+    private String module;
     private Instant createdAt;
 
     private Instant updatedAt;
@@ -40,16 +38,10 @@ public class User {
 
     private String updatedBy;
 
-    @ManyToOne
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @ManyToMany(mappedBy = "permissions",fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Role> roles;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Resume> resumes ;
-
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
 
 
     @PrePersist

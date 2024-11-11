@@ -27,6 +27,8 @@ public class UserResponseDTO {
 
     private CompanyResponse company;
 
+    private RoleResponse role;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Instant createdAt;
 
@@ -39,6 +41,15 @@ public class UserResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class CompanyResponse{
+        private Long id;
+        private String name;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class RoleResponse{
         private Long id;
         private String name;
     }

@@ -26,7 +26,7 @@ public class UserController {
     @GetMapping("/users/{id}")
     @ApiMessage("fetch user by id")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable("id") Long id){
-        return ResponseEntity.ok(this.userService.handleGetUser(id));
+        return ResponseEntity.ok(this.userService.handleFetchUserById(id));
     }
 
 

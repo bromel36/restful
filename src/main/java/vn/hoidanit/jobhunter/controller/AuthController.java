@@ -39,6 +39,7 @@ public class AuthController {
         this.securityUtil = securityUtil;
         this.userService = userService;
     }
+
     @PostMapping("/auth/login")
     @ApiMessage("success login")
     public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginDTO){
@@ -71,7 +72,8 @@ public class AuthController {
                     = new LoginResponseDTO.UserLoginResponseDTO(
                     currentUserDB.getId(),
                     currentUserDB.getName(),
-                    currentUserDB.getEmail()
+                    currentUserDB.getEmail(),
+                    currentUserDB.getRole()
             );
             result.setUser(userLogin);
         }
@@ -134,7 +136,8 @@ public class AuthController {
                     = new LoginResponseDTO.UserLoginResponseDTO(
                     currentUserDB.getId(),
                     currentUserDB.getName(),
-                    currentUserDB.getEmail()
+                    currentUserDB.getEmail(),
+                    currentUserDB.getRole()
             );
             responseLoginDTO.setUser(userLogin);
         }
