@@ -13,6 +13,7 @@ import vn.hoidanit.jobhunter.domain.Resume;
 import vn.hoidanit.jobhunter.domain.response.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.domain.response.ResumeResponseDTO;
 import vn.hoidanit.jobhunter.service.ResumeService;
+import vn.hoidanit.jobhunter.util.SecurityUtil;
 import vn.hoidanit.jobhunter.util.annotation.ApiMessage;
 
 @RestController
@@ -60,5 +61,15 @@ public class ResumeController {
         PaginationResponseDTO paginationResponseDTO = this.resumeService.handleGetAllResumes(spec, pageable);
 
         return ResponseEntity.ok(paginationResponseDTO);
+    }
+
+    @ApiMessage("fetch resume by authentication")
+    @PostMapping("/resumes/by-user")
+    public ResponseEntity<PaginationResponseDTO> getResumeByUser(
+            Pageable pageable
+    ){
+        String username = SecurityUtil.getCurrentUserLogin().orElse("");
+
+        return ResponseEntity.ok(this.resumeService.handleFetchResumeByUsername(username, pageable));
     }
 }

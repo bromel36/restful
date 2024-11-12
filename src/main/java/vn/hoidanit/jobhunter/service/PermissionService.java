@@ -97,4 +97,8 @@ public class PermissionService {
 
         permissionRepository.delete(permissionDB);
     }
+
+    public boolean isExistByApiPathAndMethod(String apiPath, String method){
+        return this.permissionRepository.existsPermissionByApiPathAndMethod(apiPath,method);
+    }
 }

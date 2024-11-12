@@ -43,11 +43,11 @@ public class UserService {
             throw new EmailExistException("Email " + user.getEmail() + " is exist, please try difference email address");
         }
 
-        Company company = checkExistCompany(user);
-        user.setCompany(company);
-
-        Role role = checkExistRole(user);
-        user.setRole(role);
+//        Company company = checkExistCompany(user);
+//        user.setCompany(company);
+//
+//        Role role = checkExistRole(user);
+//        user.setRole(role);
 
         userRepository.save(user);
 

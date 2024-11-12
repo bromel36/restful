@@ -2,10 +2,7 @@ package vn.hoidanit.jobhunter.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -15,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.hoidanit.jobhunter.domain.User;
 import vn.hoidanit.jobhunter.domain.request.LoginRequestDTO;
 import vn.hoidanit.jobhunter.domain.response.LoginResponseDTO;
+import vn.hoidanit.jobhunter.domain.response.UserResponseDTO;
 import vn.hoidanit.jobhunter.repository.UserRepository;
 import vn.hoidanit.jobhunter.service.UserService;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
@@ -114,6 +112,13 @@ public class AuthController {
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, deleteCookie.toString()).body(null);
         }
         throw new IdInvalidException("Logout user is invalid!!!");
+    }
+
+    @PostMapping("/auth/register")
+    @ApiMessage("User register account")
+    public ResponseEntity<UserResponseDTO> register(@RequestBody User userRequest){
+        UserResponseDTO userCreated = userService.handleUserCreate(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userCreated);
     }
 
 

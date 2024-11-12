@@ -10,7 +10,7 @@ import vn.hoidanit.jobhunter.util.constant.ResumeStateEnum;
 import java.time.Instant;
 
 @Entity
-@Table(name = "resume")
+@Table(name = "resumes")
 @Getter
 @Setter
 public class Resume {
