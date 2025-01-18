@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import vn.hoidanit.jobhunter.domain.Company;
 import vn.hoidanit.jobhunter.domain.Job;
 import vn.hoidanit.jobhunter.domain.Skill;
+import vn.hoidanit.jobhunter.domain.Subscriber;
 import vn.hoidanit.jobhunter.domain.response.PaginationResponseDTO;
 import vn.hoidanit.jobhunter.repository.JobRepository;
 import vn.hoidanit.jobhunter.repository.SkillRepository;
@@ -78,6 +79,7 @@ public class SkillService {
         Skill skill = handleFetchSkillById(id);
 
         List<Job> jobs = skill.getJobs();
+        List<Subscriber> subscribers = skill.getSubscribers();
 
 //        jobs.forEach(j->{
 //            j.getSkills().removeIf(s -> s.getId().equals(id));
@@ -87,6 +89,10 @@ public class SkillService {
 
         jobs.forEach(j->{
             j.getSkills().remove(skill);
+        });
+
+        subscribers.forEach(s->{
+            s.getSkills().remove(skill);
         });
 
         this.skillRepository.delete(skill);

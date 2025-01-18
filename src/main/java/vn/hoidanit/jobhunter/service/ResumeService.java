@@ -29,10 +29,9 @@ import java.util.stream.Collectors;
 public class ResumeService {
 
 
-    private final FilterParser filterParser;
+        private final FilterParser filterParser;
 
-
-    private final FilterSpecificationConverter filterSpecificationConverter;
+        private final FilterSpecificationConverter filterSpecificationConverter;
 
     private final ResumeRepository resumeRepository;
     private final UserService userService;

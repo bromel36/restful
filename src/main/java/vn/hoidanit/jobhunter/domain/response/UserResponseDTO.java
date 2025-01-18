@@ -20,7 +20,6 @@ public class UserResponseDTO {
     private String email;
     private int age;
 
-    @Enumerated(value = EnumType.STRING)
     private GenderEnum gender;
 
     private String address;

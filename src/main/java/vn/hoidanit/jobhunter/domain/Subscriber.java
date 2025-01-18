@@ -1,8 +1,7 @@
 package vn.hoidanit.jobhunter.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import vn.hoidanit.jobhunter.util.SecurityUtil;
@@ -11,17 +10,16 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name = "skills")
+@Table(name = "subscribers")
 @Getter
 @Setter
-public class Skill {
+public class Subscriber {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotBlank(message = "Skill name is required")
     private String name;
+    private String email;
 
     private Instant createdAt;
 
@@ -32,16 +30,15 @@ public class Skill {
     private String updatedBy;
 
 
-    @ManyToMany(mappedBy = "skills",fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Job> jobs;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = "subscribers")
+    @JoinTable(name = "subscriber_skill", joinColumns = @JoinColumn(name = "subscriber_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    private List<Skill> skills;
 
-    @ManyToMany(mappedBy = "skills",fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Subscriber> subscribers;
 
     @PrePersist
-    public void beforePersist() {
+    public void handleBeforeInsert(){
         createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ?
                 SecurityUtil.getCurrentUserLogin().get()
                 : "";
@@ -49,7 +46,7 @@ public class Skill {
     }
 
     @PreUpdate
-    public void beforeUpdate(){
+    public void handleBeforeUpdate(){
         updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ?
                 SecurityUtil.getCurrentUserLogin().get()
                 : "";

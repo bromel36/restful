@@ -55,7 +55,7 @@ public class SkillController {
 
     @ApiMessage("delete a skill")
     @DeleteMapping("/skills/{id}")
-    public ResponseEntity<Void> deleteJob(@PathVariable("id") Long id){
+    public ResponseEntity<Void> deleteSkill(@PathVariable("id") Long id){
         this.skillService.handldeDeleteSkill(id);
         return ResponseEntity.ok(null);
     }
