@@ -6,7 +6,6 @@ import vn.hoidanit.jobhunter.domain.Subscriber;
 import vn.hoidanit.jobhunter.repository.SubscriberRepository;
 import vn.hoidanit.jobhunter.util.error.IdInvalidException;
 
-import javax.security.auth.Subject;
 import java.util.List;
 
 @Service
@@ -14,15 +13,15 @@ public class SubscriberService {
 
     private final SubscriberRepository subscriberRepository;
     private final SkillService skillService;
+
     public SubscriberService(SubscriberRepository subscriberRepository, SkillService skillService) {
         this.subscriberRepository = subscriberRepository;
         this.skillService = skillService;
     }
 
     public Subscriber handleCreateSubscriber(Subscriber subscriber) {
-        Subscriber subDB = this.subscriberRepository.findByEmail(subscriber.getEmail());
-        if(subDB != null) {
-            throw new IdInvalidException("Subscriber already exists");
+        if (isExistByEmail(subscriber.getEmail())) {
+            throw new IdInvalidException("Email already exists");
         }
 
         List<Long> skillRequestId = subscriber.getSkills().stream()
@@ -50,7 +49,8 @@ public class SubscriberService {
         return this.subscriberRepository.save(subDB);
     }
 
-
-
+    public boolean isExistByEmail(String email) {
+        return subscriberRepository.existsByEmail(email);
+    }
 
 }
