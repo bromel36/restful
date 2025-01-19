@@ -44,34 +44,33 @@ public class PermissionInterceptor implements HandlerInterceptor {
         System.out.println(">>> requestURI= " + requestURI);
 
         String email = SecurityUtil.getCurrentUserLogin().orElse("");
-        if(!email.isBlank()){
-            User user = userService.handleGetUserByUsername(email);
 
-            if(user != null){
-                Role role = user.getRole();
-                if(role!=null){
-                    List<Permission> permissions = role.getPermissions();
+        User user = userService.handleGetUserByUsername(email);
 
-                    boolean isAllow = permissions.stream().anyMatch(
-                            it -> it.getApiPath().equals(path) && it.getMethod().equals(httpMethod)
-                    );
+        if (user != null) {
+            Role role = user.getRole();
+            if (role != null) {
+                List<Permission> permissions = role.getPermissions();
 
-                    if(!isAllow){
-                        if(permissionService.isExistByApiPathAndMethod(path,httpMethod)){
-                            // xu ly truong hop goi sai api -> 404
-                            throw new AccessDeniedException("Access denied");
-                        }
+                boolean isAllow = permissions.stream().anyMatch(
+                        it -> it.getApiPath().equals(path) && it.getMethod().equals(httpMethod)
+                );
+
+                if (!isAllow) {
+                    if (permissionService.isExistByApiPathAndMethod(path, httpMethod)) {
+                        // xu ly truong hop goi sai api -> 404
+                        throw new AccessDeniedException("Access denied");
                     }
                 }
-                else{
-                    throw new AccessDeniedException("Access denied");
-                }
-            }
-            else{
-                //truong hop hi huu, co token nhung nguoi dung trong db thi khong con
-                throw new UserNoLongerException("Unauthenticated!!!!");
+            } else {
+                throw new AccessDeniedException("Access denied");
             }
         }
+//        else {
+//            //truong hop hi huu, co token nhung nguoi dung trong db thi khong con
+//            throw new UserNoLongerException("Unauthenticated!!!!");
+//        } sai roi nhung ma de lai cho biet co truong hop la co token nhung nguoi dung trong db thi khong co
+
         return true;
     }
 
