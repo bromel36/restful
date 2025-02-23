@@ -19,7 +19,10 @@ public class MailController {
     @GetMapping("/mails")
     public String sendSimpleMail() {
 
-        this.mailService.handleSendSimpleMail();
+//        this.mailService.handleSendSimpleMail();
+//        this.mailService.sendEmailSync("nguyentien7a8@gmail.com","Email for learning test", "<b> Hello </b>",false, true);
+        this.mailService.sendEmailFromTemplateSync("minhtien2003.mtmt@gmail.com", "TEST with template", "job");
         return "OK";
     }
+
 }
