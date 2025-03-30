@@ -7,10 +7,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class PermissionInterceptorConfiguration implements WebMvcConfigurer {
-    @Bean
-    PermissionInterceptor getPermissionInterceptor() {
-        return new PermissionInterceptor();
+
+    private final PermissionInterceptor permissionInterceptor;
+
+    public PermissionInterceptorConfiguration(PermissionInterceptor permissionInterceptor) {
+        this.permissionInterceptor = permissionInterceptor;
     }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         String[] whiteList = {
@@ -19,7 +22,7 @@ public class PermissionInterceptorConfiguration implements WebMvcConfigurer {
         };
         // list nay la sau khi access token da duoc thong qua roi, thi bat cu nguoi dung nao
         // cung co the su dung
-        registry.addInterceptor(getPermissionInterceptor())
+        registry.addInterceptor(permissionInterceptor)
                 .excludePathPatterns(whiteList);
     }
 }

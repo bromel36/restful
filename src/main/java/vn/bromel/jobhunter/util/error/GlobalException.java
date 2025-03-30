@@ -34,6 +34,7 @@ public class GlobalException{
             IdInvalidException.class,
             EmailExistException.class,
             HttpMessageNotReadableException.class,
+            Exception.class
     })
     public ResponseEntity<RestResponse<Object>> handleUsernameNotFoundException(Exception ex){
         RestResponse<Object> res = new RestResponse<>();

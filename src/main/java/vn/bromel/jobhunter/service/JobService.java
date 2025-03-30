@@ -140,6 +140,10 @@ public class JobService {
 
     }
 
+    public List<Job> fetchAllJob(){
+        return this.jobRepository.findAll();
+    }
+
     public boolean isExistJob(Long id){
         return this.jobRepository.existsById(id);
     }

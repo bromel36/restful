@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 public class ResumeService {
 
 
-        private final FilterParser filterParser;
+    private final FilterParser filterParser;
 
-        private final FilterSpecificationConverter filterSpecificationConverter;
+    private final FilterSpecificationConverter filterSpecificationConverter;
 
     private final ResumeRepository resumeRepository;
     private final UserService userService;
@@ -98,9 +98,9 @@ public class ResumeService {
 
         User userDB = this.userService.handleGetUserByUsername(username);
         List<Long> jobIds = null;
-        if(userDB!= null){
+        if (userDB != null) {
             Company companyDB = userDB.getCompany();
-            if(companyDB != null){
+            if (companyDB != null) {
                 jobIds = Optional.ofNullable(companyDB.getJobs())
                         .orElse(Collections.emptyList())
                         .stream()
@@ -146,7 +146,7 @@ public class ResumeService {
                 .createdAt(currentResume.getCreatedAt())
                 .updatedBy(currentResume.getUpdatedBy())
                 .updatedAt(currentResume.getUpdatedAt())
-                .companyName(currentResume.getJob()!= null ? currentResume.getJob().getCompany().getName():null)
+                .companyName(currentResume.getJob() != null ? currentResume.getJob().getCompany().getName() : null)
                 .user(new ResumeResponseDTO.UserResumeResponse(currentResume.getUser().getId(), currentResume.getUser().getName()))
                 .job(new ResumeResponseDTO.JobResumeResponse(currentResume.getJob().getId(), currentResume.getJob().getName()))
                 .build();

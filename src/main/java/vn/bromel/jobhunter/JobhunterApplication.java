@@ -2,6 +2,7 @@ package vn.bromel.jobhunter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 //disable security
 //@SpringBootApplication(exclude = {
@@ -10,7 +11,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 //})
 
  @SpringBootApplication
-public class JobhunterApplication {
+ @EnableAsync
+ public class JobhunterApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(JobhunterApplication.class, args);
