@@ -1,5 +1,7 @@
 package vn.bromel.jobhunter.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import vn.bromel.jobhunter.domain.Job;
 import vn.bromel.jobhunter.domain.Skill;
@@ -12,6 +14,7 @@ import vn.bromel.jobhunter.util.error.IdInvalidException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class SubscriberService {
 
@@ -60,6 +63,11 @@ public class SubscriberService {
     public boolean isExistByEmail(String email) {
         return subscriberRepository.existsByEmail(email);
     }
+
+//    @Scheduled(cron = "0/30 * * * * ?")
+//    public void testCron(){
+//        log.info("TEST");
+//    }
 
     public void sendMailToSubscriber() {
         List<Subscriber> subs = getSubscribers();
