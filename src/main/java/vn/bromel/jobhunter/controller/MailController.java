@@ -21,8 +21,8 @@ public class MailController {
     SubscriberService subscriberService;
 
     @GetMapping("/mails")
-    @Scheduled(cron = "0/30 * * * * ?")
-    @Transactional
+//    @Scheduled(cron = "0/30 * * * * ?")
+//    @Transactional
     public String sendSimpleMail() {
         this.subscriberService.sendMailToSubscriber();
         return "OK";

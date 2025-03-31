@@ -15,12 +15,12 @@ public class SubscriberController {
     public SubscriberController(final SubscriberService subscriberService) {
         this.subscriberService = subscriberService;
     }
-    @GetMapping("/subscriber")
+    @PostMapping("/subscribers")
     public ResponseEntity<Subscriber> create(@RequestBody Subscriber subscriber) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.subscriberService.handleCreateSubscriber(subscriber));
     }
 
-    @PutMapping("/subscriber")
+    @PutMapping("/subscribers")
     public ResponseEntity<Subscriber> update(@RequestBody Subscriber subscriber) {
         return ResponseEntity.ok(this.subscriberService.handleUpdateSubscriber(subscriber));
     }

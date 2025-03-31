@@ -37,9 +37,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                         .map(Throwable::getMessage)
                         .orElse(authException.getMessage());
 
-        restResponse.setError(errorMessage);
+        restResponse.setError("Token invalid");
         restResponse.setStatusCode(HttpStatus.UNAUTHORIZED.value());
-        restResponse.setMessage("Token invalid");
+        restResponse.setMessage(errorMessage);
         mapper.writeValue(response.getWriter(), restResponse);
 
     }

@@ -42,7 +42,6 @@ public class RoleService {
         }
 
         return roleRepository.save(role);
-
     }
 
 
@@ -50,7 +49,7 @@ public class RoleService {
         Role roleDB = this.roleRepository.findById(role.getId())
                 .orElseThrow(() -> new IdInvalidException("Role id not found"));
 
-        if(!roleDB.getName().equals(role.getName()) && isExistsName(role.getName())){
+        if(!roleDB.getId().equals(role.getId()) && isExistsName(role.getName())){
             throw new IdInvalidException("Role Name already exists");
         }
 

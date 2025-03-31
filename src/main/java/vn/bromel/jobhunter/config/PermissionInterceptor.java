@@ -40,6 +40,9 @@ public class PermissionInterceptor implements HandlerInterceptor {
             "/api/v1/jobs/**",
             "/api/v1/skills/**"
     );
+    List<String> allowedPostEndpoints = List.of(
+            "/api/v1/resumes/**"
+    );
 
     @Override
     @Transactional
@@ -57,19 +60,26 @@ public class PermissionInterceptor implements HandlerInterceptor {
         System.out.println(">>> httpMethod= " + httpMethod);
         System.out.println(">>> requestURI= " + requestURI);
 
-        if (httpMethod.equalsIgnoreCase("GET")) {
-            for (String pattern : allowedGetEndpoints) {
-                if (pathMatcher.match(pattern, path)) {
-                    return true;
-                }
-            }
-        }
 
         String email = SecurityUtil.getCurrentUserLogin().orElse("");
 
         User user = userService.handleGetUserByUsername(email);
 
         if (user != null) {
+            if (httpMethod.equalsIgnoreCase("GET")) {
+                for (String pattern : allowedGetEndpoints) {
+                    if (pathMatcher.match(pattern, path)) {
+                        return true;
+                    }
+                }
+            }
+            if (httpMethod.equalsIgnoreCase("POST")) {
+                for (String pattern : allowedPostEndpoints) {
+                    if (pathMatcher.match(pattern, path)) {
+                        return true;
+                    }
+                }
+            }
             Role role = user.getRole();
             if (role != null) {
                 List<Permission> permissions = role.getPermissions();
