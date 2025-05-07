@@ -1,12 +1,14 @@
+
+
 # Build stage
-FROM gradle:7.4-jdk17 AS build
+FROM openjdk:17-jdk-slim AS build
 WORKDIR /app
 
-# Copy tất cả các file vào container
+# Copy tất cả các tệp, bao gồm gradlew và thư mục gradle
 COPY . .
 
-# Chạy lệnh build với Gradle (thay vì Maven)
-RUN gradle clean build -x test
+# Chạy Gradle Wrapper thay vì lệnh gradle
+RUN ./gradlew clean build -x test
 
 # Run stage
 FROM openjdk:17-jdk-slim
