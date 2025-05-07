@@ -8,6 +8,9 @@ WORKDIR /app
 COPY build.gradle.kts settings.gradle.kts gradlew gradlew.bat ./
 COPY gradle ./gradle
 
+# Grant execution permissions to the Gradle wrapper
+RUN chmod +x gradlew
+
 # Copy the source code
 COPY src ./src
 
