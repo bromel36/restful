@@ -1,5 +1,6 @@
 package vn.bromel.jobhunter.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.util.List;
 
 
 @Component
+@Slf4j(topic = "INITIAL-SERVICRE")
 public class DatabaseInitializer implements CommandLineRunner {
 
     private final PermissionRepository permissionRepository;
@@ -31,8 +33,8 @@ public class DatabaseInitializer implements CommandLineRunner {
 
 
     @Override
-    public void run(String... args) throws Exception {
-        System.out.println("Initializing Database...");
+    public void run(String... args) {
+        log.info("Initializing Database...");
 
         Long roleSize = roleRepository.count();
         Long permissionSize = permissionRepository.count();
@@ -43,7 +45,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
             this.permissionRepository.saveAll(createAllPermission());
 
-            System.out.println(">>>>>> Successful initiate permission" );
+            log.info(">>>>>> Successful initiate permission");
         }
         if (roleSize == 0) {
             List<Permission> allPermissions = this.permissionRepository.findAll();
@@ -58,7 +60,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
             this.roleRepository.save(adminRole);
 
-            System.out.println(">>>>>> Successful initiate role" );
+            log.info(">>>>>> Successful initiate role");
 
         }
         if(userSize == 0){
@@ -80,9 +82,9 @@ public class DatabaseInitializer implements CommandLineRunner {
         }
 
         if (permissionSize > 0 && roleSize > 0 && userSize > 0) {
-            System.out.println(">>> SKIP INIT DATABASE ~ ALREADY HAVE DATA...");
+            log.info(">>> SKIP INIT DATABASE ~ ALREADY HAVE DATA...");
         } else
-            System.out.println(">>> END INIT DATABASE");
+            log.info(">>> END INIT DATABASE");
 
     }
 
