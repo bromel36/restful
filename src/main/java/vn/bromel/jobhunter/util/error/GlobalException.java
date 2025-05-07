@@ -34,7 +34,6 @@ public class GlobalException{
             IdInvalidException.class,
             EmailExistException.class,
             HttpMessageNotReadableException.class,
-            Exception.class
     })
     public ResponseEntity<RestResponse<Object>> handleUsernameNotFoundException(Exception ex){
         RestResponse<Object> res = new RestResponse<>();
@@ -45,18 +44,18 @@ public class GlobalException{
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
-//    @ExceptionHandler(value = {
-//
-//    })
-//    public ResponseEntity<RestResponse<Object>> handleIdInvalidException(Exception ex){
-//        RestResponse<Object> res = new RestResponse<>();
-//
-//        res.setMessage("Exception occur ....");
-//        res.setError(ex.getLocalizedMessage());
-//        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
-//
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
-//    }
+    @ExceptionHandler(value = {
+            Exception.class
+    })
+    public ResponseEntity<RestResponse<Object>> handleAllException(Exception ex) {
+        RestResponse<Object> res = new RestResponse<>();
+
+        res.setMessage(ex.getMessage());
+        res.setError("Internal Server Error");
+        res.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<RestResponse<Object>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex){
